@@ -56,7 +56,7 @@ class CircularPattern {
       
       // 加入 Perlin 噪声来调整每个圆的位置，减慢频率
       const noiseFactor = noise(noiseOffset + i * 0.01 + frameCount * 0.001); // 这里将 frameCount 乘以 0.01
-      const x = this.x + (radius + noiseFactor * 5) * cos(angle);
+      const x = this.x + (radius + noiseFactor * 5) * cos(angle); 
       const y = this.y + (radius + noiseFactor * 5) * sin(angle);
       
       // 加入 Perlin 噪声来调整每个圆的大小
@@ -73,12 +73,12 @@ class CircularPattern {
     stroke(strokeColor);
     strokeWeight(weight * this.scale);
     
-    let noiseOffset = random(200); // 设置噪声偏移
+    let noiseOffset = random(200); // Set noiseOffset
     for (let i = 0; i < count; i++) {
       const angle = TWO_PI / count * i;
-      const noiseFactor = noise(noiseOffset + i * 0.1 + frameCount * 0.01); // 这里将 frameCount 乘以 0.01
+      const noiseFactor = noise(noiseOffset + i * 0.1 + frameCount * 0.01); 
   
-      // 使用 Perlin 噪声为起点和终点添加随机偏移
+      // Add random offsets to the starting and ending points using Perlin noise
       const x1 = this.x + (innerRadius + noiseFactor * 5) * cos(angle);
       const y1 = this.y + (innerRadius + noiseFactor * 5) * sin(angle);
       const x2 = this.x + (outerRadius + noiseFactor * 10) * cos(angle);
@@ -92,12 +92,12 @@ class CircularPattern {
 
   // Draw concentric circle
   drawConcentricCircle(diameter, fillColor, strokeColor = null, strokeWeight = 0) {
-    let noiseOffset = random(200); // 设置噪声偏移
+    let noiseOffset = random(200); // Set noise offset
     
-    const noiseFactor = noise(noiseOffset + frameCount * 0.01) * 0.05; // 这里将 frameCount 乘以 0.01
-    const offsetX = this.x + noiseFactor * 10; // 为中心位置添加偏移
+    const noiseFactor = noise(noiseOffset + frameCount * 0.01) * 0.05; 
+    const offsetX = this.x + noiseFactor * 10; // Add an offset to the center position
     const offsetY = this.y + noiseFactor * 10;
-    const newDiameter = diameter * (0.95 + noiseFactor); // 修改大小
+    const newDiameter = diameter * (0.95 + noiseFactor); // Edit the size
   
     fill(fillColor);
     if (strokeColor) {
@@ -561,23 +561,48 @@ class PatternManager {
 // Global variables used to manage patterns
 let patternManager;
 
-// The setup function initializes the canvas and the PatternManager instance
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  patternManager = new PatternManager();
-  patternManager.createPatterns();
+  patternManager = new PatternManager();// Create a pattern manager instance that is responsible for generating and drawing patterns
+  patternManager.createPatterns(); // Generates patterns and initializes pattern elements
 }
 
-// The draw function, called at each frame, is responsible for drawing the pattern
-function draw() {
-  background(232,198,198,255);
-  patternManager.draw();
-}
-
-// Window size change processing
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  // Regenerates the pattern to fit the new canvas size
   patternManager.createPatterns();
 }
 
+function draw() {
+  background(232, 198, 198, 255);
+  drawNoiseBackground(); // Rendering noise background
+  patternManager.draw(); // Call the draw method of the pattern manager to draw the pattern
+}
+
+// Draw a background with noise effects
+function drawNoiseBackground() {
+  
+  const noiseScale = 0.005; // Set the noise ratio to affect the distribution frequency of noise
+  const numShapes = 150;
+  const minSize = 20;
+  const maxSize = 60;
+  const alpha = 127;
+  
+  
+  // Loop to create the shape of the random noise background
+  for (let i = 0; i < numShapes; i++) {
+   
+    let x = noise(i * 0.5, frameCount * 0.001) * width; // The x coordinate of the shape is generated using noise, and the noise function parameter is related to the number of frames to simulate the dynamic effect
+    let y = noise(i * 0.6 + 1000, frameCount * 0.005) * height; // The y coordinate of the shape is generated using noise
+    let size = map(noise(i * 0.1 + 2000, frameCount * 0.01), 0, 1, minSize, maxSize); // The size of the shape is generated using noise, and the size value varies randomly between the minimum and maximum size
+    let noiseVal = noise(x * noiseScale, y * noiseScale, frameCount * 0.002); // Three-dimensional noise values are used to determine the color, and x and y are combined with noise ratio and time parameters to affect the color change
+    if (noiseVal < 0.5) {
+      fill(232, 198, 198, alpha);
+    } 
+    else {
+      fill(198, 232, 223, alpha);
+    }
+    
+    // Draw a circle by adjusting the size and transparency of the shape according to the change in the noise value
+    circle(x, y, size * (0.5 + noiseVal));
+  }
+}
