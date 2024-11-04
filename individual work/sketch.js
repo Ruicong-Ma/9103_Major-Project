@@ -50,14 +50,14 @@ class CircularPattern {
   drawCircleRing(radius, count, size, fillColor) {
     fill(fillColor);
     noStroke();
-    let noiseOffset = random(1000); // 设置一个噪声偏移值，以确保每个图案的噪声不同
+    let noiseOffset = random(200); // 设置一个噪声偏移值，以确保每个图案的噪声不同
     for (let i = 0; i < count; i++) {
       const angle = TWO_PI / count * i;
       
       // 加入 Perlin 噪声来调整每个圆的位置，减慢频率
-      const noiseFactor = noise(noiseOffset + i * 0.1 + frameCount * 0.01); // 这里将 frameCount 乘以 0.01
-      const x = this.x + (radius + noiseFactor * 10) * cos(angle);
-      const y = this.y + (radius + noiseFactor * 10) * sin(angle);
+      const noiseFactor = noise(noiseOffset + i * 0.01 + frameCount * 0.001); // 这里将 frameCount 乘以 0.01
+      const x = this.x + (radius + noiseFactor * 5) * cos(angle);
+      const y = this.y + (radius + noiseFactor * 5) * sin(angle);
       
       // 加入 Perlin 噪声来调整每个圆的大小
       const newSize = size * this.scale * (0.8 + noiseFactor * 0.4); 
@@ -73,7 +73,7 @@ class CircularPattern {
     stroke(strokeColor);
     strokeWeight(weight * this.scale);
     
-    let noiseOffset = random(1000); // 设置噪声偏移
+    let noiseOffset = random(200); // 设置噪声偏移
     for (let i = 0; i < count; i++) {
       const angle = TWO_PI / count * i;
       const noiseFactor = noise(noiseOffset + i * 0.1 + frameCount * 0.01); // 这里将 frameCount 乘以 0.01
@@ -92,11 +92,11 @@ class CircularPattern {
 
   // Draw concentric circle
   drawConcentricCircle(diameter, fillColor, strokeColor = null, strokeWeight = 0) {
-    let noiseOffset = random(1000); // 设置噪声偏移
+    let noiseOffset = random(200); // 设置噪声偏移
     
     const noiseFactor = noise(noiseOffset + frameCount * 0.01) * 0.05; // 这里将 frameCount 乘以 0.01
-    const offsetX = this.x + noiseFactor * 20; // 为中心位置添加偏移
-    const offsetY = this.y + noiseFactor * 20;
+    const offsetX = this.x + noiseFactor * 10; // 为中心位置添加偏移
+    const offsetY = this.y + noiseFactor * 10;
     const newDiameter = diameter * (0.95 + noiseFactor); // 修改大小
   
     fill(fillColor);
