@@ -561,48 +561,110 @@ class PatternManager {
 // Global variables used to manage patterns
 let patternManager;
 
+function drawNoiseBackground() {
+  const particleCount = 1000;
+  const baseSize = 12;
+  
+  // Create background layer
+  fill(0, 0, 0, 10);
+  rect(0, 0, width, height);
+  
+  noStroke(); //Prevents circles with only wireframes
+  
+  // Create smoke effect
+  for (let i = 0; i < particleCount; i++) {
+    
+    // Use multiple noise offsets to create a more dispersed distribution
+    let t = frameCount * 0.003;
+    let noiseOffset1 = i * 0.05;
+    let noiseOffset2 = i * 0.05 + 1000;
+    
+    // Use multiple layers of noise to create a more distributed location
+    let nx = noise(noiseOffset1, t);
+    let ny = noise(noiseOffset2, t);
+    
+    // Expand the distribution and increase randomness
+    let x = (nx * 1.4 - 0.2) * width + random(-50, 50);
+    let y = (ny * 1.4 - 0.2) * height + random(-50, 50);
+    
+    // Use additional noise to control the density of different areas
+    let densityNoise = noise(x * 0.001, y * 0.001, t * 0.5);
+    
+    // Design areas with the right density to draw particles
+    if (densityNoise > 0.3) {
+
+      // Size change based on location
+      let sizeNoise = noise(x * 0.005, y * 0.005, t);
+      let size = sizeNoise * baseSize + random(3);
+      
+      // Transparency changes based on location
+      let alpha = map(densityNoise, 0.3, 1, 20, 70);
+      
+      if (random() > 0.4) {  // Increase randomness and make the distribution more sparse
+        // Warm particle
+        fill(232, 120, 120, alpha * 0.8);
+        ellipse(x + random(-2, 2), y + random(-2, 2), size);
+        
+        // Cool tone particle
+        fill(120, 232, 220, alpha * 0.6);
+        ellipse(x + random(-4, 4), y + random(-4, 4), size * 0.8);
+      }
+      
+      // Randomly add some large blur effects
+      if (random() > 0.95) {
+        fill(232, 198, 198, alpha * 0.3);
+        ellipse(x, y, size * 3);
+      }
+      
+      // Add small random highlights
+      if (random() > 0.9) {
+        fill(255, 255, 255, alpha);
+        ellipse(x + random(-5, 5), y + random(-5, 5), size * 0.4);
+      }
+    }
+  }
+  
+  // Add some large, scattered chunks of smoke
+  for (let i = 0; i < 30; i++) {  // Increase the number of large smoke blocks
+    let t = frameCount * 0.001;
+    let noiseScale = 0.3;
+    
+    // Use different noise offsets to create more dispersed large smoke blocks
+    let x = noise(i * noiseScale, t) * width * 1.4 - width * 0.2;
+    let y = noise(i * noiseScale + 5, t) * height * 1.4 - height * 0.2;
+    
+    // Random size
+    let size = noise(i * noiseScale + 10, t) * 120 + random(30, 80);
+    let alpha = 15;
+    
+    // Only add large smoke blocks in appropriate locations
+    if (noise(x * 0.01, y * 0.01) > 0.4) {
+      // Main color large smoke block
+      fill(232, 198, 198, alpha);
+      ellipse(x, y, size * 2);
+      
+      // Contrasting color large smoke block
+      fill(198, 232, 223, alpha);
+      ellipse(x + random(-30, 30), y + random(-30, 30), size * 1.5);
+    }
+  }
+}
+
+function draw() {
+  // Use lower transparency to keep the smoke effect visible
+  background(232, 198, 198, 8);
+  drawNoiseBackground();
+  patternManager.draw();
+}
+
+// The setup and windowResized functions remain unchanged
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  patternManager = new PatternManager();// Create a pattern manager instance that is responsible for generating and drawing patterns
-  patternManager.createPatterns(); // Generates patterns and initializes pattern elements
+  patternManager = new PatternManager();
+  patternManager.createPatterns();
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   patternManager.createPatterns();
-}
-
-function draw() {
-  background(232, 198, 198, 255);
-  drawNoiseBackground(); // Rendering noise background
-  patternManager.draw(); // Call the draw method of the pattern manager to draw the pattern
-}
-
-// Draw a background with noise effects
-function drawNoiseBackground() {
-  
-  const noiseScale = 0.005; // Set the noise ratio to affect the distribution frequency of noise
-  const numShapes = 150;
-  const minSize = 20;
-  const maxSize = 60;
-  const alpha = 127;
-  
-  
-  // Loop to create the shape of the random noise background
-  for (let i = 0; i < numShapes; i++) {
-   
-    let x = noise(i * 0.5, frameCount * 0.001) * width; // The x coordinate of the shape is generated using noise, and the noise function parameter is related to the number of frames to simulate the dynamic effect
-    let y = noise(i * 0.6 + 1000, frameCount * 0.005) * height; // The y coordinate of the shape is generated using noise
-    let size = map(noise(i * 0.1 + 2000, frameCount * 0.01), 0, 1, minSize, maxSize); // The size of the shape is generated using noise, and the size value varies randomly between the minimum and maximum size
-    let noiseVal = noise(x * noiseScale, y * noiseScale, frameCount * 0.002); // Three-dimensional noise values are used to determine the color, and x and y are combined with noise ratio and time parameters to affect the color change
-    if (noiseVal < 0.5) {
-      fill(232, 198, 198, alpha);
-    } 
-    else {
-      fill(198, 232, 223, alpha);
-    }
-    
-    // Draw a circle by adjusting the size and transparency of the shape according to the change in the noise value
-    circle(x, y, size * (0.5 + noiseVal));
-  }
 }
